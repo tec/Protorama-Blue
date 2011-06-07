@@ -1,0 +1,15 @@
+dev:
+  doctrine:
+    class: sfDoctrineDatabase
+    param:
+      dsn: 'mysql:host=localhost;dbname=webtopng'
+      username: pidoco
+      password: pidoco
+      
+all:
+  doctrine:
+    class: sfDoctrineDatabase
+    param:
+      dsn: 'mysql:host=localhost;dbname=webtopng'
+      username: webtopng
+      password: AwYsRf79bAPfaFFS

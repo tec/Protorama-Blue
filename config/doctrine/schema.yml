@@ -1,0 +1,10 @@
+# config/doctrine/schema.yml
+Image:
+  actAs: { Timestampable: ~ }
+  columns:        
+    url: { type: string(255), notnull: true, notblank: true }
+    params: { type: string(255) }
+    hash: { type: string(255), notnull: true, unique: true, notblank: true }
+    path: { type: string(255), notnull: true, notblank: true }
+    accessed_at: { type: timestamp, notnull: true }
+    processed_at: { type: timestamp, notnull: false }

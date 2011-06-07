@@ -1,0 +1,62 @@
+mkdir ProjektTitel
+cd ProjektTitel
+mkdir -p lib/vendor
+svn checkout http://svn.symfony-project.com/branches/1.4/ lib/vendor/symfony
+php lib/vendor/symfony/data/bin/symfony generate:project projekttitel
+php symfony generate:app frontend
+chmod 777 cache/ log/
+cd web
+ln -s ../lib/vendor/symfony/data/web/sf sf
+cd ..
+"Projekt nach Eclipse importieren: New PHP Project mit ProjektTitel"
+"Localhost-IP zu web/frontend_dev.php hinzufügen"
+"Datenmodell in config/doctrine/schema.yml anlegen"
+"in data/fixtures/tabellenname.yml Standard-Werte konfigurieren"
+"Datenbank projekttitel anlegen"
+php symfony configure:database "mysql:host=localhost;dbname=projekttitel" nutzername passwort
+php symfony doctrine:build --all --and-load
+php symfony doctrine:generate-module --with-show --non-verbose-templates frontend Backend Tabellenname
+"Eigenes Modul erzeugen"
+"Template in apps/frontend/templates/layout.php anpassen"
+
+BAZAAR
+bzr init
+bzr ignore .settings/ .project/ log/ cache/ web/uploads/
+bzr add
+
+SUBVERSION (besser mit RabbitVC)
+"svn checkout von revision 0"
+svn propset svn:ignore .settings .
+svn propset svn:ignore .project .
+svn propset svn:ignore log .
+svn propset svn:ignore cache .
+svn add web
+svn propset svn:ignore web/uploads web
+svn add *
+
+GIT
+git remote add origin git@pidoco.plan.io:pidoco-chemiede-url-manager.git
+touch .gitignore
+nano .gitignore:
+	# Ignore all dotfiles...
+	.*
+	# except for .gitignore
+	!.gitignore
+
+	.settings/* 
+	.project/* 
+	log/* 
+	cache/* 
+	web/uploads/*
+git commit -a -m "initial"
+git push origin master
+
+VALIDATION
+  public function configureDoctrine()
+  {
+	$manager = Doctrine_Manager::getInstance();
+	$manager->setAttribute(Doctrine::ATTR_VALIDATE, Doctrine::VALIDATE_ALL);
+  }
+
+nach config/ProjectConfiguration
+
