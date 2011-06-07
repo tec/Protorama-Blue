@@ -2,14 +2,14 @@ dev:
   doctrine:
     class: sfDoctrineDatabase
     param:
-      dsn: 'mysql:host=localhost;dbname=webtopng'
-      username: pidoco
-      password: pidoco
+      dsn: 'mysql:host=localhost;dbname=protorama_blue'
+      username: protorama_blue
+      password: protorama_blue
       
 all:
   doctrine:
     class: sfDoctrineDatabase
     param:
-      dsn: 'mysql:host=localhost;dbname=webtopng'
-      username: webtopng
-      password: AwYsRf79bAPfaFFS
+      dsn: 'mysql:host=localhost;dbname=protorama_blue'
+      username: protorama_blue
+      password: fPYyUyYnVvrVR4LQ
