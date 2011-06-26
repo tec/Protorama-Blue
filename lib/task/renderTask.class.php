@@ -68,9 +68,11 @@ EOF;
 		    	try {
 					echo "Render URL to PDF: ".$image->getUrl().", parameters: ".$image->getParams()."\n";
 					$command = "";
-			    	if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
+			    	//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
 			    	if($options['env'] == 'prod') 	$command .= getcwd().'/tools/wkhtmltopdf-amd64 '; // wkhtmltopdf binary amd64
-			    	else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
+			    	// TODO
+			    	else 				$command .= getcwd().'/tools/wkhtmltopdf-amd64 ';  // wkhtmltopdf binary amd64
+			    	//else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
 			    	$command .= '"'.$image->getUrl().'" '; // url
 					//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
 			    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.pdf; '; // pdf path

@@ -1,3 +1,6 @@
 .buildpath
 .project
 .settings
+cache
+log
+web/uploads

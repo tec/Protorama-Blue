@@ -13,9 +13,9 @@ class WebToPngActions extends sfActions
   public function executeRender(sfWebRequest $request)
   { 	
   	// extract parameters
-  	$uri = preg_replace('/-[a-z]+:[a-z0-9]+,/', '', $request->getUri());
-  	$path = preg_replace('/-[a-z]+:[a-z0-9]+,/', '', $request->getPathInfo());
-  	preg_match_all('/-[a-z]+:[a-z0-9]+,/', $request->getUri(), $matches);
+  	$uri = preg_replace('/,-[a-z]+:[a-z0-9]+/', '', $request->getUri());
+  	$path = preg_replace('/,-[a-z]+:[a-z0-9]+/', '', $request->getPathInfo());
+  	preg_match_all('/,-[a-z]+:[a-z0-9]+/', $request->getUri(), $matches);
   	$params = array();
   	foreach ($matches[0] as $match) {
   			$param = trim($match, '-,');
@@ -24,10 +24,10 @@ class WebToPngActions extends sfActions
   	}
   	
   	// set default params, TODO: change params to default if param not valid
-  	if(!isset($params['wait']))		$params['wait'] = 20;
+  	if(!isset($params['wait']))		$params['wait'] = 60;
   	if(!isset($params['width'])) 	$params['width'] = 800;
   	if(!isset($params['format']))	$params['format'] = 'png';
-  	
+
   	// extract url
   	$url = substr($uri, stripos($uri, $request->getHost()) + strlen($request->getHost()));
   	$urlFristPart = substr($path, 1);

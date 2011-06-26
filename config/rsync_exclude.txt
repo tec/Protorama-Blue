@@ -3,6 +3,11 @@
 /log/*
 /web/*_dev.php
 /web/uploads/*
+.settings
+.gitignore
+.buildpath
+.project
+
 
 # SCM files
 .arch-params

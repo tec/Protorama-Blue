@@ -2,14 +2,14 @@ dev:
   doctrine:
     class: sfDoctrineDatabase
     param:
-      dsn: 'mysql:host=localhost;dbname=protorama_blue'
-      username: protorama_blue
-      password: protorama_blue
+      dsn: 'mysql:host=localhost;dbname=pr_blue_dev'
+      username: pr_blue_dev
+      password: pr_blue_dev
       
-all:
+prod:
   doctrine:
     class: sfDoctrineDatabase
     param:
-      dsn: 'mysql:host=localhost;dbname=protorama_blue'
-      username: protorama_blue
+      dsn: 'mysql:host=localhost;dbname=pr_blue'
+      username: pr_blue
       password: fPYyUyYnVvrVR4LQ
