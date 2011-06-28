@@ -13,9 +13,9 @@ class WebToPngActions extends sfActions
   public function executeRender(sfWebRequest $request)
   { 	
   	// extract parameters
-  	$uri = preg_replace('/,-[a-z]+:[a-z0-9]+/', '', $request->getUri());
-  	$path = preg_replace('/,-[a-z]+:[a-z0-9]+/', '', $request->getPathInfo());
-  	preg_match_all('/,-[a-z]+:[a-z0-9]+/', $request->getUri(), $matches);
+  	$uri = preg_replace('/-[a-z]+:[a-z0-9]+,/', '', $request->getUri());
+  	$path = preg_replace('/-[a-z]+:[a-z0-9]+,/', '', $request->getPathInfo());
+  	preg_match_all('/-[a-z]+:[a-z0-9]+,/', $request->getUri(), $matches);
   	$params = array();
   	foreach ($matches[0] as $match) {
   			$param = trim($match, '-,');
