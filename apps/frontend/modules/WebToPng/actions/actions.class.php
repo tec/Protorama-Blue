@@ -26,7 +26,7 @@ class WebToPngActions extends sfActions
   	// set default params, TODO: change params to default if param not valid
   	if(!isset($params['wait']))		$params['wait'] = 60;
   	if(!isset($params['width'])) 	$params['width'] = 800;
-  	if(!isset($params['format']))	$params['format'] = 'png';
+  	if(!isset($params['format']))	$params['format'] = 'jpg';
 
   	// extract url
   	$url = substr($uri, stripos($uri, $request->getHost()) + strlen($request->getHost()));
