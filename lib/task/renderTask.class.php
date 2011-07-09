@@ -109,6 +109,7 @@ EOF;
 					    	// TODO
 					    	else 				$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltopdf binary amd64
 					    	//else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
+					    	$command .= '--zoom '.round($params['width']/1024, 2).' --width '.$params['width'].' ';
 					    	$command .= '"'.$image->getUrl().'" '; // url
 							//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
 					    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.jpg; '; // pdf path
