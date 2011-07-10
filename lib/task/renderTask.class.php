@@ -65,7 +65,7 @@ EOF;
 					// get parameters
 					$params = json_decode($image->getParams(), true);
 			    	
-					if ($params['format']!='jpg') {
+					if ($params['format'] == 'pdf') {
 				    	// generate PDF
 				    	try {
 							echo "Render URL to PDF: ".$image->getUrl().", parameters: ".$image->getParams()."\n";
@@ -82,25 +82,9 @@ EOF;
 					    	shell_exec($command);	 
 				    	} catch (Exception $e) {
 			    			echo $e->getMessage(), "\n";
-						}
-				    	
-				    	// generate PNG
-				    	if(filesize(getcwd().'/web/uploads/'.$image->getHash().'.pdf') > 2500 && $params['format']!='pdf') {    
-				    		try {
-								echo "Render PDF to PNG: ".$image->getUrl()."\n";
-						    	$im = new Imagick();
-								$im->setResolution(300, 300);
-								$im->readImage(getcwd().'/web/uploads/'.$image->getHash().'.pdf[0]');
-								$im->trimImage(0);
-								$im->scaleImage($params['width'],0); 						
-					       		$im->setImageFormat('png');
-						 		$im->writeImage(getcwd().'/web/uploads/'.$image->getHash().'.png');
-				    		} catch (Exception $e) {
-			    				echo $e->getMessage(), "\n";
-							}
-				    	}
+						}				    	
 					} else {
-						// generate JPG
+						// generate image
 				    	try {
 							echo "Render URL to JPG: ".$image->getUrl().", parameters: ".$image->getParams()."\n";
 							$command = "";
@@ -110,9 +94,10 @@ EOF;
 					    	else 				$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltopdf binary amd64
 					    	//else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
 					    	$command .= '--zoom '.round($params['width']/1024, 2).' --width '.$params['width'].' ';
+					    	$command .= '--format '.$params['format'].' ';
 					    	$command .= '"'.$image->getUrl().'" '; // url
 							//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
-					    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.jpg; '; // pdf path
+					    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.'.$params['format'].'; '; // image path
 							echo "Using command: ".	$command ."\n";
 					    	shell_exec($command);	 
 				    	} catch (Exception $e) {
