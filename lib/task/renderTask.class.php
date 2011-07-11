@@ -42,77 +42,35 @@ EOF;
 	    chdir($cwd); 
 	    
 		for($i = 0; $i < $arguments['chunksize']; $i++) {
-		  	$q = Doctrine_Query::create()
-		    	->from('Image i')
-		    	->where('i.processed_at IS NULL OR i.accessed_at > i.processed_at')
-		    	->limit(1)
-		    	->orderBy('i.accessed_at DESC');
-		    $this->images = $q->execute();
-
-			if(count($this->images) == 0) {
-				echo "Wait for 2 seconds.\n";
-				sleep(2);
-			} else {
-				echo "Fetched ".count($this->images)." image.\n";
-
-			    foreach ($this->images as $image) {
-			    	$modified = date('D, j M Y G:i:s T', strtotime($image->getProcessedAt()));
+		  	$image = ImageTable::getInstance()->getImageToProcess();
+		  	
+			if($image) {				
+				echo "Process image.\n";
 			    		 
-			    	// to make sure the images is not rendered again even in the case an error occurs 
-			    	$image->setProcessedAt(date('Y-m-d H:i:s'));
-			    	$image->save();
-			    	
-					// get parameters
-					$params = json_decode($image->getParams(), true);
-			    	
-					if ($params['format'] == 'pdf') {
-				    	// generate PDF
-				    	try {
-							echo "Render URL to PDF: ".$image->getUrl().", parameters: ".$image->getParams()."\n";
-							$command = "";
-					    	//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
-					    	if($options['env'] == 'prod') 	$command .= getcwd().'/tools/wkhtmltopdf-amd64 '; // wkhtmltopdf binary amd64
-					    	// TODO
-					    	else 				$command .= getcwd().'/tools/wkhtmltopdf-amd64 ';  // wkhtmltopdf binary amd64
-					    	//else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
-					    	$command .= '"'.$image->getUrl().'" '; // url
-							//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
-					    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.pdf; '; // pdf path
-							echo "Using command: ".	$command ."\n";
-					    	shell_exec($command);	 
-				    	} catch (Exception $e) {
-			    			echo $e->getMessage(), "\n";
-						}				    	
-					} else {
-						// generate image
-				    	try {
-							echo "Render URL to JPG: ".$image->getUrl().", parameters: ".$image->getParams()."\n";
-							$command = "";
-					    	//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
-					    	if($options['env'] == 'prod') 	$command .= getcwd().'/tools/wkhtmltoimage-amd64 '; // wkhtmltopdf binary amd64
-					    	// TODO
-					    	else 				$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltopdf binary amd64
-					    	//else 				$command .= getcwd().'/tools/wkhtmltopdf-i386 '; // wkhtmltopdf binary i386
-					    	$command .= '--zoom '.round($params['width']/1024, 2).' --width '.$params['width'].' ';
-					    	$command .= '--format '.$params['format'].' ';
-					    	$command .= '"'.$image->getUrl().'" '; // url
-							//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
-					    	$command .= getcwd().'/web/uploads/'.$image->getHash().'.'.$params['format'].'; '; // image path
-							echo "Using command: ".	$command ."\n";
-					    	shell_exec($command);	 
-				    	} catch (Exception $e) {
-			    			echo $e->getMessage(), "\n";
-						}
-					}
-		    	
-			    	// save to DB
-			    	clearstatcache();	    	
-			    	if(file_exists(getcwd().'/web/uploads/'.$image->getHash().'.'.$params['format'])) 
-			    		$image->setPath('uploads/'.$image->getHash().'.'.$params['format']);
-			    	else
-			    		$image->setPath('images/could-not-render.png');    
-			    	$image->save();
+			    // to make sure the images is not rendered again even in the case an error occurs 
+			    $image->setProcessedAt(date('Y-m-d H:i:s'));
+			    $image->save();
+
+				// generate image
+			    try {
+					echo "Render URL to image: ".$image->getUrl().", parameters: ".$image->getParams()."\n";					
+					echo "Using command: ".	$image->getCommand() ."\n";
+				   	shell_exec($image->getCommand());	 
+			    } catch (Exception $e) {
+		    		echo $e->getMessage(), "\n";
 				}
+	    	
+			    // save to DB
+			    clearstatcache();	    	
+			    if(file_exists(getcwd().'/web/uploads/'.$image->getHash().'.'.$image->decodeParams()->format)) {
+			    	$image->setPath('uploads/'.$image->getHash().'.'.$image->decodeParams()->format);
+			    } else {
+			    	$image->setPath('images/could-not-render.png');  
+			    }  
+			    $image->save();
+			} else {
+				echo "Wait for 1 second.\n";
+				sleep(1);
 			}
 	    }
 	    flock($fp, LOCK_UN); // release the lock
