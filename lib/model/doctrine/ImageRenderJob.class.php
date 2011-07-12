@@ -11,7 +11,7 @@
  * @version    SVN: $Id: Builder.php 7490 2010-03-29 19:53:27Z jwage $
  */
 class ImageRenderJob extends BaseImageRenderJob
-{
+{	
 	public function getCommand() {		
 		$command = "";
 		//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout

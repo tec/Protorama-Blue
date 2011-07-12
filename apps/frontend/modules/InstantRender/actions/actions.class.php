@@ -23,56 +23,34 @@ class InstantRenderActions extends sfActions
   			$params[$param[0]] = $param[1];  			
   	}
   	
-  	// set default params, TODO: change params to default if param not valid
-  	if(!isset($params['wait']))		$params['wait'] = 60;
-  	if(!isset($params['width'])) 	$params['width'] = 800;
-  	if(!isset($params['format']))	$params['format'] = 'jpg';
-
   	// extract url
   	$url = substr($uri, stripos($uri, $request->getHost()) + strlen($request->getHost()));
   	$urlFristPart = substr($path, 1);
   	if(strpos($urlFristPart, "/") !== FALSE) $urlFristPart = substr($urlFristPart, 0, strpos($urlFristPart, "/"));
   	$url = substr($url, strpos($url, $urlFristPart));
-  	
-  	// save to DB
-  	$this->image = Doctrine::getTable('ImageRenderJob')->findOneBy("hash", sha1($url.json_encode($params)));  		
-  	if(!$this->image) {  	
-	    $this->image = new ImageRenderJob();
-	    $this->image->setUrl($url);
-	    $this->image->setParams(json_encode($params));
-		$this->image->setHash(sha1($url.json_encode($params)));
-		$this->image->setPath('images/not-yet-rendered.png');			   
-  	} else if(!file_exists(getcwd().'/'.$this->image->getPath())) {
-  		$this->image->setPath('images/not-yet-rendered.png');
-  	}  	
-	if(time() - strtotime($this->image->getAccessedAt()) > 30)
-  		$this->image->setAccessedAt(date('Y-m-d H:i:s'));	
-	$this->image->save();
 
-	// if wait set and image not yet processed then wait
-	$wait = $this->image->getProcessFinishedAt() != NULL ? 0 : $params['wait']; 
+  	// create job
+  	$this->job = RenderJobTable::getInstance()->createNewJob($url, $params);
+  	
+	// waits max 60 seconds until job is rendered
+	$wait = $this->job->getProcessFinishedAt() != NULL ? 0 : 60; 
 	while ($wait > 0) {
-		$this->image = Doctrine::getTable('ImageRenderJob')->findOneBy("hash", sha1($url.json_encode($params)));  
-		if(	$this->image &&
-			$this->image->getProcessFinishedAt() != NULL && 
-			$this->image->getPath() != 'images/not-yet-rendered.png' &&
-			file_exists(getcwd().'/'.$this->image->getPath())) 
+		$this->job = RenderJobTable::getInstance()->find($this->job->getId());  
+		if($this->job->getProcessFinishedAt() > $this->job->getProcessStartedAt() && file_exists(getcwd().'/'.$this->job->getPath())) {
 			$wait = 0;
-		else {
-			$wait -= 5;
+		} else {
+			$wait--;
 			session_write_close();
-			sleep(5);
+			sleep(1);
 			clearstatcache();
 		}
 	}
 
-	if($params['format'] == 'pdf' && stripos($this->image->getPath(), 'pdf') !== FALSE) {
+	if($this->job->getParam('format') == 'pdf' && stripos($this->job->getPath(), 'pdf') !== FALSE) {
 		$this->getResponse()->setContentType('application/pdf');
 		header('Content-Disposition: attachment; filename="'.$url.'.pdf"');		
-	} else
+	} else {
 		$this->getResponse()->setContentType('image/png');
-	
-	//$factory = new rendererFactory();
-	//print_r($factory->getRenderer($params['format'])->createJob(array($url), $params)->getPath());
+	}
   }
 }

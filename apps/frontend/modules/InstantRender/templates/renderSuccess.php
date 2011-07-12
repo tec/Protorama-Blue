@@ -1,1 +1,1 @@
-<?php readfile(getcwd().'/'.$image->getPath()); ?>
+<?php readfile(getcwd().'/'.$job->getPath()); ?>

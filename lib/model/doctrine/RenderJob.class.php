@@ -16,6 +16,10 @@ class RenderJob extends BaseRenderJob
 		throw new Exception('Method "getCommand" only implemented in child classes.');
 	}
 	
+	public function execCommand() {
+		shell_exec($this->getCommand());	 
+	}
+	
 	public function getParam($name) {
 		$parmas = json_decode($this->getParams(), true);
 		return $parmas[$name];

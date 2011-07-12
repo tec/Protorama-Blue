@@ -55,7 +55,7 @@ EOF;
 			    try {
 					echo "Render URL to ".$job->getType().": ".$job->getUrl().", parameters: ".$job->getParams()."\n";					
 					echo "Using command: ".	$job->getCommand() ."\n";
-				   	shell_exec($job->getCommand());	 
+				   	$job->execCommand();	 
 			    } catch (Exception $e) {
 		    		echo $e->getMessage(), "\n";
 				}

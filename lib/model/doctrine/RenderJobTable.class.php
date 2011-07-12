@@ -7,6 +7,9 @@
  */
 class RenderJobTable extends Doctrine_Table
 {
+	private $formatMapping = array('png' => 'image', 'jpg' => 'image', 'pdf' => 'pdf');
+	private $defaultParams = array('width' => 800, 'format' => 'jpg');
+	
     /**
      * Returns an instance of this class.
      *
@@ -19,10 +22,45 @@ class RenderJobTable extends Doctrine_Table
     
 	public function getNextJob() {
 		return  $this->createQuery('j')
-			 	->where('j.process_finished_at IS NULL OR j.accessed_at > j.process_finished_at')
+			 	->where('j.process_started_at IS NULL OR j.accessed_at > j.process_started_at')
 		    	->limit(1)
 		    	->orderBy('j.accessed_at DESC')
 		    	->execute()
 		    	->getFirst();
+	}
+	
+	public function createNewJob($url, $params) {
+		// set default values
+  		$params = array_merge($this->defaultParams, $params);		
+  		
+  		// validate some params
+  		if (!is_numeric($params['width'])) {
+  			throw new Exception('The value of the parameter width is not valid');
+  		}
+		if (!array_key_exists($params['format'], $this->formatMapping)) {
+  			throw new Exception('The value of the parameter format is not valid');
+  		}
+  		$pattern = '/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?$/';
+		if (!preg_match($pattern, $url)) {
+			throw new Exception('The url is not valid');
+		}
+		
+  		// retrieve if exists, if not create new
+		$job = $this->findOneBy("hash", sha1($url.json_encode($params)));		
+	  	if(!$job) {  	
+		    $job = new RenderJob();
+		    $job->setUrl($url);
+		    $job->setParams(json_encode($params));
+			$job->setHash(sha1($url.json_encode($params)));
+			$job->setPath('images/not-yet-rendered.png');		
+			$job->setType($this->formatMapping[$params['format']]);	   
+	  	} else if(!file_exists(getcwd().'/'.$job->getPath())) {
+	  		$job->setPath('images/not-yet-rendered.png');
+	  	}  	
+		if(time() - strtotime($job->getAccessedAt()) > 30) {
+	  		$job->setAccessedAt(date('Y-m-d H:i:s'));	
+		}
+		$job->save();			
+		return $job;
 	}
 }
