@@ -39,9 +39,8 @@ class RenderJobTable extends Doctrine_Table
   		}
 		if (!array_key_exists($params['format'], $this->formatMapping)) {
   			throw new Exception('The value of the parameter format is not valid');
-  		}
-  		$pattern = '/^(([\w]+:)?\/\/)?(([\d\w]|%[a-fA-f\d]{2,2})+(:([\d\w]|%[a-fA-f\d]{2,2})+)?@)?([\d\w][-\d\w]{0,253}[\d\w]\.)+[\w]{2,4}(:[\d]+)?(\/([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)*(\?(&amp;?([-+_~.\d\w]|%[a-fA-f\d]{2,2})=?)*)?(#([-+_~.\d\w]|%[a-fA-f\d]{2,2})*)?$/';
-		if (!preg_match($pattern, $url)) {
+  		}  		
+		if (!filter_var($url, FILTER_VALIDATE_URL) && !filter_var('http://'.$url, FILTER_VALIDATE_URL) && !filter_var('https://'.$url, FILTER_VALIDATE_URL)) {
 			throw new Exception('The url is not valid');
 		}
 		
