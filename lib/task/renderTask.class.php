@@ -42,32 +42,33 @@ EOF;
 	    chdir($cwd); 
 	    
 		for($i = 0; $i < $arguments['chunksize']; $i++) {
-		  	$image = ImageTable::getInstance()->getImageToProcess();
+		  	$job = RenderJobTable::getInstance()->getNextJob();
 		  	
-			if($image) {				
-				echo "Process image.\n";
+			if($job) {				
+				echo "Process job.\n";
 			    		 
 			    // to make sure the images is not rendered again even in the case an error occurs 
-			    $image->setProcessedAt(date('Y-m-d H:i:s'));
-			    $image->save();
+			    $job->setProcessStartedAt(date('Y-m-d H:i:s'));
+			    $job->save();
 
 				// generate image
 			    try {
-					echo "Render URL to image: ".$image->getUrl().", parameters: ".$image->getParams()."\n";					
-					echo "Using command: ".	$image->getCommand() ."\n";
-				   	shell_exec($image->getCommand());	 
+					echo "Render URL to ".$job->getType().": ".$job->getUrl().", parameters: ".$job->getParams()."\n";					
+					echo "Using command: ".	$job->getCommand() ."\n";
+				   	shell_exec($job->getCommand());	 
 			    } catch (Exception $e) {
 		    		echo $e->getMessage(), "\n";
 				}
 	    	
 			    // save to DB
 			    clearstatcache();	    	
-			    if(file_exists(getcwd().'/web/uploads/'.$image->getHash().'.'.$image->decodeParams()->format)) {
-			    	$image->setPath('uploads/'.$image->getHash().'.'.$image->decodeParams()->format);
+			    if(file_exists(getcwd().'/web/uploads/'.$job->getHash().'.'.$job->getParam('format'))) {
+			    	$job->setPath('uploads/'.$job->getHash().'.'.$job->getParam('format'));
 			    } else {
-			    	$image->setPath('images/could-not-render.png');  
+			    	$job->setPath('images/could-not-render.png');  
 			    }  
-			    $image->save();
+			    $job->setProcessFinishedAt(date('Y-m-d H:i:s'));
+			    $job->save();
 			} else {
 				echo "Wait for 1 second.\n";
 				sleep(1);

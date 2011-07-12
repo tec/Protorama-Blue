@@ -1,14 +1,14 @@
 <?php
 
 /**
- * WebToPng actions.
+ * InstantRender actions.
  *
- * @package    webtopng
- * @subpackage WebToPng
- * @author     Your name here
+ * @package    Protorama Blue
+ * @subpackage Protorama Blue
+ * @author     Tino Truppel
  * @version    SVN: $Id: actions.class.php 23810 2009-11-12 11:07:44Z Kris.Wallsmith $
  */
-class WebToPngActions extends sfActions
+class InstantRenderActions extends sfActions
 {
   public function executeRender(sfWebRequest $request)
   { 	
@@ -35,9 +35,9 @@ class WebToPngActions extends sfActions
   	$url = substr($url, strpos($url, $urlFristPart));
   	
   	// save to DB
-  	$this->image = Doctrine::getTable('Image')->findOneBy("hash", sha1($url.json_encode($params)));  		
+  	$this->image = Doctrine::getTable('ImageRenderJob')->findOneBy("hash", sha1($url.json_encode($params)));  		
   	if(!$this->image) {  	
-	    $this->image = new Image();
+	    $this->image = new ImageRenderJob();
 	    $this->image->setUrl($url);
 	    $this->image->setParams(json_encode($params));
 		$this->image->setHash(sha1($url.json_encode($params)));
@@ -50,11 +50,11 @@ class WebToPngActions extends sfActions
 	$this->image->save();
 
 	// if wait set and image not yet processed then wait
-	$wait = $this->image->getProcessedAt() != NULL ? 0 : $params['wait']; 
+	$wait = $this->image->getProcessFinishedAt() != NULL ? 0 : $params['wait']; 
 	while ($wait > 0) {
-		$this->image = Doctrine::getTable('Image')->findOneBy("hash", sha1($url.json_encode($params)));  
+		$this->image = Doctrine::getTable('ImageRenderJob')->findOneBy("hash", sha1($url.json_encode($params)));  
 		if(	$this->image &&
-			$this->image->getProcessedAt() != NULL && 
+			$this->image->getProcessFinishedAt() != NULL && 
 			$this->image->getPath() != 'images/not-yet-rendered.png' &&
 			file_exists(getcwd().'/'.$this->image->getPath())) 
 			$wait = 0;
