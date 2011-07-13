@@ -1,0 +1,14 @@
+# You can find more information about this file on the symfony website:
+# http://www.symfony-project.org/reference/1_4/en/10-Routing
+
+postRenderJob:
+  url:   /post
+  param: { module: api, action: post }
+  requirements:
+    sf_method: [post]
+
+getRenderJob:
+  url:   /get/:hash
+  param: { module: api, action: get }
+  class: sfDoctrineRoute
+  options: { model: RenderJob, type: object }

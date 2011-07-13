@@ -16,7 +16,7 @@ class PdfRenderJob extends BasePdfRenderJob
 		$command = "";
 		//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
 		$command .= getcwd().'/tools/wkhtmltopdf-amd64 ';  // wkhtmltopdf binary amd64
-		$command .= '"'.$this->getUrl().'" '; // url
+		$command .= '"'.$this->getParam('url').'" '; // url
 		//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
 		$command .= getcwd().'/web/uploads/'.$this->getHash().'.'.$this->getParam('format').'; '; // pdf path
 		return $command;

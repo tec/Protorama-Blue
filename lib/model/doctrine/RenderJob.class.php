@@ -24,4 +24,24 @@ class RenderJob extends BaseRenderJob
 		$parmas = json_decode($this->getParams(), true);
 		return $parmas[$name];
 	}
+	
+	public function getResult() {		
+    	// in the case this method is called within an action
+    	sfContext::getInstance()->getConfiguration()->loadHelpers(array('Asset'));
+    	return image_path('/'.$this->getPath(), true);
+	}
+	
+	public function getStatus() {
+		if (is_null($this->getProcessStartedAt())) {
+			return 'NEW';
+		} else if ($this->getProcessStartedAt() < $this->getAccessedAt()) {
+			return 'QUEUED';
+		} else if ($this->getProcessStartedAt() > $this->getProcessFinishedAt()) {
+			return 'PROCESSING';
+		} else if ($this->getProcessStartedAt() <= $this->getProcessFinishedAt()) {
+			return 'PROCESSED';
+		} else {
+			return 'UNKOWN';
+		}
+	}
 }

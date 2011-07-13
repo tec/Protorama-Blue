@@ -29,28 +29,30 @@ class RenderJobTable extends Doctrine_Table
 		    	->getFirst();
 	}
 	
-	public function createNewJob($url, $params) {
+	public function createNewJob($params) {
 		// set default values
   		$params = array_merge($this->defaultParams, $params);		
   		
   		// validate some params
   		if (!is_numeric($params['width'])) {
-  			throw new Exception('The value of the parameter width is not valid');
+  			throw new Exception('The value of the parameter WIDTH is not valid');
   		}
 		if (!array_key_exists($params['format'], $this->formatMapping)) {
-  			throw new Exception('The value of the parameter format is not valid');
+  			throw new Exception('The value of the parameter FORMAT is not valid');
+  		}
+  		if (!isset($params['url'])) {
+  			throw new Exception('The parameter URL is required');
   		}  		
-		if (!filter_var($url, FILTER_VALIDATE_URL) && !filter_var('http://'.$url, FILTER_VALIDATE_URL) && !filter_var('https://'.$url, FILTER_VALIDATE_URL)) {
-			throw new Exception('The url is not valid');
+		if (!filter_var($params['url'], FILTER_VALIDATE_URL) && !filter_var('http://'.$params['url'], FILTER_VALIDATE_URL) && !filter_var('https://'.$params['url'], FILTER_VALIDATE_URL)) {
+			throw new Exception('The value of the parameter URL is not valid');
 		}
 		
   		// retrieve if exists, if not create new
-		$job = $this->findOneBy("hash", sha1($url.json_encode($params)));		
+		$job = $this->findOneBy("hash", sha1(json_encode($params)));		
 	  	if(!$job) {  	
 		    $job = new RenderJob();
-		    $job->setUrl($url);
 		    $job->setParams(json_encode($params));
-			$job->setHash(sha1($url.json_encode($params)));
+			$job->setHash(sha1(json_encode($params)));
 			$job->setPath('images/not-yet-rendered.png');		
 			$job->setType($this->formatMapping[$params['format']]);	   
 	  	} else if(!file_exists(getcwd().'/'.$job->getPath())) {

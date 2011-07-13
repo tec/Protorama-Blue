@@ -16,26 +16,26 @@ abstract class BaseRenderJobForm extends BaseFormDoctrine
   {
     $this->setWidgets(array(
       'id'                  => new sfWidgetFormInputHidden(),
-      'url'                 => new sfWidgetFormInputText(),
       'params'              => new sfWidgetFormInputText(),
       'hash'                => new sfWidgetFormInputText(),
       'path'                => new sfWidgetFormInputText(),
       'accessed_at'         => new sfWidgetFormDateTime(),
       'process_started_at'  => new sfWidgetFormDateTime(),
       'process_finished_at' => new sfWidgetFormDateTime(),
+      'type'                => new sfWidgetFormInputText(),
       'created_at'          => new sfWidgetFormDateTime(),
       'updated_at'          => new sfWidgetFormDateTime(),
     ));
 
     $this->setValidators(array(
       'id'                  => new sfValidatorChoice(array('choices' => array($this->getObject()->get('id')), 'empty_value' => $this->getObject()->get('id'), 'required' => false)),
-      'url'                 => new sfValidatorString(array('max_length' => 255)),
       'params'              => new sfValidatorPass(array('required' => false)),
       'hash'                => new sfValidatorString(array('max_length' => 255)),
       'path'                => new sfValidatorString(array('max_length' => 255)),
       'accessed_at'         => new sfValidatorDateTime(),
       'process_started_at'  => new sfValidatorDateTime(array('required' => false)),
       'process_finished_at' => new sfValidatorDateTime(array('required' => false)),
+      'type'                => new sfValidatorString(array('max_length' => 255, 'required' => false)),
       'created_at'          => new sfValidatorDateTime(),
       'updated_at'          => new sfValidatorDateTime(),
     ));

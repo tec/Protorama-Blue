@@ -18,7 +18,7 @@ class ImageRenderJob extends BaseImageRenderJob
 		$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltoimage binary amd64
 		$command .= '--zoom '.round($this->getParam('width')/1024, 2).' --width '.$this->getParam('width').' ';
 		$command .= '--format '.$this->getParam('format').' ';
-		$command .= '"'.$this->getUrl().'" '; // url
+		$command .= '"'.$this->getParam('url').'" '; // url
 		//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
 		$command .= getcwd().'/web/uploads/'.$this->getHash().'.'.$this->getParam('format').'; '; // image path
 		return $command;
