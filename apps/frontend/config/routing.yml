@@ -1,6 +1,16 @@
 # You can find more information about this file on the symfony website:
 # http://www.symfony-project.org/reference/1_4/en/10-Routing
+  
+postRenderJob:
+  url:   /api/post
+  param: { module: api, action: post }
 
-render:
+getRenderJob:
+  url:   /api/get/:hash
+  param: { module: api, action: get }
+  class: sfDoctrineRoute
+  options: { model: RenderJob, type: object }
+  
+instantRender:
   url:   /*
   param: { module: InstantRender, action: render }

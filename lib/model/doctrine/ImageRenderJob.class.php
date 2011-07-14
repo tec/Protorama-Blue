@@ -12,15 +12,39 @@
  */
 class ImageRenderJob extends BaseImageRenderJob
 {	
-	public function getCommand() {		
+	private $defaultParams = array('width' => '1024');
+	
+	public function getCommand() {				
+  		$params = array_merge($this->defaultParams, json_decode($this->getParams(), true));	
+  		
 		$command = "";
-		//if($options['env'] == 'prod')	$command .= 'timeout 30 '; // timeout
+		$command .= 'timeout 15 '; // timeout
 		$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltoimage binary amd64
-		$command .= '--zoom '.round($this->getParam('width')/1024, 2).' --width '.$this->getParam('width').' ';
-		$command .= '--format '.$this->getParam('format').' ';
-		$command .= '"'.$this->getParam('url').'" '; // url
+		$command .= '--zoom '.round($params['width']/1024, 2).' --width '.$params['width'].' ';
+		$command .= '--format '.$params['format'].' ';
+		$command .= '"'.$params['url'].'" '; // url
 		//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
-		$command .= getcwd().'/web/uploads/'.$this->getHash().'.'.$this->getParam('format').'; '; // image path
+		$command .= getcwd().'/web/uploads/'.$this->getHash().'.'.$params['format'].'; '; // image path
 		return $command;
 	}
+	
+	public function validateParams() {
+  		$params = array_merge($this->defaultParams, json_decode($this->getParams(), true));	
+		if (!is_numeric($params['width'])) {
+			$this->setStatus('failed');
+  			$this->setErrorMessage('The value of the parameter WIDTH is not valid');
+  			return false;
+  		}
+		if (!isset($params['url'])) {
+			$this->setStatus('failed');
+  			$this->setErrorMessage('The parameter URL is required');
+  			return false;
+  		}  		
+		if (!filter_var($params['url'], FILTER_VALIDATE_URL) && !filter_var('http://'.$params['url'], FILTER_VALIDATE_URL) && !filter_var('https://'.$params['url'], FILTER_VALIDATE_URL)) {
+			$this->setStatus('failed');
+			$this->setErrorMessage('The value of the parameter URL is not valid');
+  			return false;
+		}
+		return true;
+	}	
 }

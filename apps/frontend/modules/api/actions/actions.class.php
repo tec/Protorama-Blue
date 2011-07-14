@@ -12,7 +12,7 @@ class apiActions extends apiAbstractActions
 {
   public function executePost(sfWebRequest $request)
   {
-  	$job = RenderJobTable::getInstance()->createNewJob($request->getPostParameters());
+  	$job = RenderJobTable::getInstance()->createNewJob(array_merge($request->getGetParameters(), $request->getPostParameters()));
   	$this->_returnJob($job);
   }
   
@@ -24,7 +24,7 @@ class apiActions extends apiAbstractActions
   
   private function _returnJob(RenderJob $job) 
   {  		
-    $this->returnJson(array(
+  	$result = array(
     	'hash' => $job->getHash(),
     	'params' => json_decode($job->getParams(), true),
     	'accessedAt' => $job->getAccessedAt(),
@@ -32,8 +32,12 @@ class apiActions extends apiAbstractActions
 		'processFinishedAt' => $job->getProcessFinishedAt(),
 		'type' => $job->getType(),
 		'createdAt' => $job->getCreatedAt(),
-    	'status' => $job->getStatus(),
     	'result' => $job->getResult(),
-    ));
+    	'status' => $job->getStatus(),
+    );
+    if ($result['status'] == 'failed') {
+    	$result['errorMessage'] = $job->getErrorMessage();
+    }
+    $this->returnJson($result);
   }
 }

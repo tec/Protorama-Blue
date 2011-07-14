@@ -8,7 +8,7 @@
 class RenderJobTable extends Doctrine_Table
 {
 	private $formatMapping = array('png' => 'image', 'jpg' => 'image', 'pdf' => 'pdf');
-	private $defaultParams = array('width' => 800, 'format' => 'jpg');
+	private $defaultParams = array('format' => 'jpg');
 	
     /**
      * Returns an instance of this class.
@@ -23,6 +23,7 @@ class RenderJobTable extends Doctrine_Table
 	public function getNextJob() {
 		return  $this->createQuery('j')
 			 	->where('j.process_started_at IS NULL OR j.accessed_at > j.process_started_at')
+			 	->andWhere('j.status != "failed"')
 		    	->limit(1)
 		    	->orderBy('j.accessed_at DESC')
 		    	->execute()
@@ -33,35 +34,30 @@ class RenderJobTable extends Doctrine_Table
 		// set default values
   		$params = array_merge($this->defaultParams, $params);		
   		
-  		// validate some params
-  		if (!is_numeric($params['width'])) {
-  			throw new Exception('The value of the parameter WIDTH is not valid');
-  		}
-		if (!array_key_exists($params['format'], $this->formatMapping)) {
-  			throw new Exception('The value of the parameter FORMAT is not valid');
-  		}
-  		if (!isset($params['url'])) {
-  			throw new Exception('The parameter URL is required');
-  		}  		
-		if (!filter_var($params['url'], FILTER_VALIDATE_URL) && !filter_var('http://'.$params['url'], FILTER_VALIDATE_URL) && !filter_var('https://'.$params['url'], FILTER_VALIDATE_URL)) {
-			throw new Exception('The value of the parameter URL is not valid');
-		}
-		
   		// retrieve if exists, if not create new
 		$job = $this->findOneBy("hash", sha1(json_encode($params)));		
 	  	if(!$job) {  	
 		    $job = new RenderJob();
 		    $job->setParams(json_encode($params));
-			$job->setHash(sha1(json_encode($params)));
-			$job->setPath('images/not-yet-rendered.png');		
-			$job->setType($this->formatMapping[$params['format']]);	   
-	  	} else if(!file_exists(getcwd().'/'.$job->getPath())) {
-	  		$job->setPath('images/not-yet-rendered.png');
-	  	}  	
-		if(time() - strtotime($job->getAccessedAt()) > 30) {
+			$job->setHash(sha1(json_encode($params)));			
+	  		$job->setAccessedAt(date('Y-m-d H:i:s'));		  			  		  	
+	  	    if (!array_key_exists($params['format'], $this->formatMapping)) {
+	  			$job->setStatus('failed');
+	  			$job->setErrorMessage('The provided parameter FORMAT='.$params['format'].' is not valid');	  		
+				$job->setPath('images/could-not-render.png');
+	  		} else {
+				$job->setType($this->formatMapping[$params['format']]);	
+				$job->setStatus('queued');				  				
+				$job->setPath('images/not-yet-rendered.png');
+	  		}	  		
+			$job->save();
+	  	} else if(time() - strtotime($job->getAccessedAt()) > 30) {
 	  		$job->setAccessedAt(date('Y-m-d H:i:s'));	
-		}
-		$job->save();			
+	  		if ($job->getStatus() != 'failed') {
+				$job->setStatus('queued');	
+	  		}		  		  		
+			$job->save();
+		}			
 		return $job;
 	}
 }

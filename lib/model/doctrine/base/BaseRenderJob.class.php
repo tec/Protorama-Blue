@@ -8,6 +8,8 @@
  * @property text $params
  * @property string $hash
  * @property string $path
+ * @property enum $status
+ * @property text $error_message
  * @property timestamp $accessed_at
  * @property timestamp $process_started_at
  * @property timestamp $process_finished_at
@@ -16,6 +18,8 @@
  * @method text      getParams()              Returns the current record's "params" value
  * @method string    getHash()                Returns the current record's "hash" value
  * @method string    getPath()                Returns the current record's "path" value
+ * @method enum      getStatus()              Returns the current record's "status" value
+ * @method text      getErrorMessage()        Returns the current record's "error_message" value
  * @method timestamp getAccessedAt()          Returns the current record's "accessed_at" value
  * @method timestamp getProcessStartedAt()    Returns the current record's "process_started_at" value
  * @method timestamp getProcessFinishedAt()   Returns the current record's "process_finished_at" value
@@ -23,6 +27,8 @@
  * @method RenderJob setParams()              Sets the current record's "params" value
  * @method RenderJob setHash()                Sets the current record's "hash" value
  * @method RenderJob setPath()                Sets the current record's "path" value
+ * @method RenderJob setStatus()              Sets the current record's "status" value
+ * @method RenderJob setErrorMessage()        Sets the current record's "error_message" value
  * @method RenderJob setAccessedAt()          Sets the current record's "accessed_at" value
  * @method RenderJob setProcessStartedAt()    Sets the current record's "process_started_at" value
  * @method RenderJob setProcessFinishedAt()   Sets the current record's "process_finished_at" value
@@ -53,6 +59,21 @@ abstract class BaseRenderJob extends sfDoctrineRecord
              'notnull' => true,
              'notblank' => true,
              'length' => 255,
+             ));
+        $this->hasColumn('status', 'enum', null, array(
+             'type' => 'enum',
+             'values' => 
+             array(
+              0 => 'queued',
+              1 => 'processing',
+              2 => 'processed',
+              3 => 'failed',
+             ),
+             'notnull' => true,
+             'notblank' => true,
+             ));
+        $this->hasColumn('error_message', 'text', null, array(
+             'type' => 'text',
              ));
         $this->hasColumn('accessed_at', 'timestamp', null, array(
              'type' => 'timestamp',
