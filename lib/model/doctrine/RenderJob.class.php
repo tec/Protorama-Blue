@@ -15,7 +15,7 @@ class RenderJob extends BaseRenderJob
 	public function getCommand() {
 		throw new Exception('Method "getCommand" only implemented in child classes.');
 	}
-	
+
 	public function validateParams() {
 		return true;
 	}
@@ -30,33 +30,33 @@ class RenderJob extends BaseRenderJob
 				shell_exec($this->getCommand());
 				$this->setProcessFinishedAt(date('Y-m-d H:i:s'));
 				$this->setStatus('processed');
-				$this->save();
 			} catch (Exception $e) {
 				$this->setStatus('failed');
 				$this->setErrorMessage($e->getMessage());
 			}
-	
+
 			// check result
 			clearstatcache();
 			if(file_exists(getcwd().'/web/uploads/'.$this->getHash().'.'.$this->getParam('format'))) {
 				$this->setPath('uploads/'.$this->getHash().'.'.$this->getParam('format'));
 			} else {
-				$this->setPath('images/could-not-render.png');			
+				$this->setPath('images/could-not-render.png');
 				$this->setStatus('failed');
 				$this->setErrorMessage('Unkown error occurs');
 			}
 		}
-		
-		// save to db
-		$this->save();
+		return $this;
 	}
 
 	public function getParam($name) {
-		$parmas = json_decode($this->getParams(), true);
-		return $parmas[$name];
+		$params = json_decode($this->getParams(), true);
+		return $params[$name];
 	}
 
 	public function getResult() {
+		if ($this->getStatus() == 'failed') {
+			$this->setPath('images/could-not-render.png');
+		}
 		// in the case this method is called within an action
 		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Asset'));
 		return image_path('/'.$this->getPath(), true);

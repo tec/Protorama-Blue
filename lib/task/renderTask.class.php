@@ -48,7 +48,7 @@ EOF;
 
 				if($job) {
 					$this->logSection("render", "Process job ".$job->getHash().": ".$job->getParams());
-					$job->render();
+					$job->render()->save();
 				} else {
 					$this->logSection("render", "Wait for 1 second");
 					sleep(1);

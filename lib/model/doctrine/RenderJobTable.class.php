@@ -7,7 +7,7 @@
  */
 class RenderJobTable extends Doctrine_Table
 {
-	private $formatMapping = array('png' => 'image', 'jpg' => 'image', 'pdf' => 'pdf');
+	private $formatMapping = array('png' => 'image', 'jpg' => 'image', 'pdf' => 'pdf', 'ps' => 'pdf', 'docx' => 'word');
 	private $defaultParams = array('format' => 'jpg');
 	
     /**
@@ -22,7 +22,7 @@ class RenderJobTable extends Doctrine_Table
     
 	public function getNextJob() {
 		return  $this->createQuery('j')
-			 	->where('j.process_started_at IS NULL OR j.accessed_at > j.process_started_at')
+			 	->where('j.process_started_at IS NULL OR j.accessed_at > j.process_started_at OR j.status = "waiting"')
 			 	->andWhere('j.status != "failed"')
 		    	->limit(1)
 		    	->orderBy('j.accessed_at DESC')
@@ -32,7 +32,11 @@ class RenderJobTable extends Doctrine_Table
 	
 	public function createNewJob($params) {
 		// set default values
-  		$params = array_merge($this->defaultParams, $params);		
+		if (is_array($params)) {
+			$params = array_merge($this->defaultParams, $params);
+		} else {
+			$params = $this->defaultParams;
+		}  				
   		
   		// retrieve if exists, if not create new
 		$job = $this->findOneBy("hash", sha1(json_encode($params)));		
@@ -43,11 +47,11 @@ class RenderJobTable extends Doctrine_Table
 	  		$job->setAccessedAt(date('Y-m-d H:i:s'));		  			  		  	
 	  	    if (!array_key_exists($params['format'], $this->formatMapping)) {
 	  			$job->setStatus('failed');
-	  			$job->setErrorMessage('The provided parameter FORMAT='.$params['format'].' is not valid');	  		
+	  			$job->setErrorMessage('The provided parameter FORMAT:'.$params['format'].' is not valid');	  		
 				$job->setPath('images/could-not-render.png');
 	  		} else {
 				$job->setType($this->formatMapping[$params['format']]);	
-				$job->setStatus('queued');				  				
+				$job->setStatus('new');				  				
 				$job->setPath('images/not-yet-rendered.png');
 	  		}	  		
 			$job->save();

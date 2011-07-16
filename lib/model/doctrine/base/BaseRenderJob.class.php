@@ -64,10 +64,12 @@ abstract class BaseRenderJob extends sfDoctrineRecord
              'type' => 'enum',
              'values' => 
              array(
-              0 => 'queued',
-              1 => 'processing',
-              2 => 'processed',
-              3 => 'failed',
+              0 => 'new',
+              1 => 'queued',
+              2 => 'processing',
+              3 => 'processed',
+              4 => 'failed',
+              5 => 'waiting',
              ),
              'notnull' => true,
              'notblank' => true,
@@ -100,6 +102,10 @@ abstract class BaseRenderJob extends sfDoctrineRecord
              'PdfRenderJob' => 
              array(
               'type' => 'pdf',
+             ),
+             'WordRenderJob' => 
+             array(
+              'type' => 'word',
              ),
              ));
     }

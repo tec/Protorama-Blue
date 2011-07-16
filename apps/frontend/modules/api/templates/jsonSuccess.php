@@ -1,1 +1,1 @@
-<?php echo json_encode($data->getRawValue()); ?>
+<?php echo json_encode($result->getRawValue()); ?>

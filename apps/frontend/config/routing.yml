@@ -2,11 +2,11 @@
 # http://www.symfony-project.org/reference/1_4/en/10-Routing
   
 postRenderJob:
-  url:   /api/post
+  url:   /api/post.:format
   param: { module: api, action: post }
 
 getRenderJob:
-  url:   /api/get/:hash
+  url:   /api/get/:hash.:format
   param: { module: api, action: get }
   class: sfDoctrineRoute
   options: { model: RenderJob, type: object }
