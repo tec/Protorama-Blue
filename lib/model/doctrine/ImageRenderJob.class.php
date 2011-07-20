@@ -18,10 +18,11 @@ class ImageRenderJob extends BaseImageRenderJob
   		$params = array_merge($this->defaultParams, json_decode($this->getParams(), true));	
   		
 		$command = "";
-		$command .= 'timeout 15 '; // timeout
+		$command .= 'timeout 120 '; // timeout		
 		$command .= getcwd().'/tools/wkhtmltoimage-amd64 ';  // wkhtmltoimage binary amd64
 		$command .= '--zoom '.round($params['width']/1024, 2).' --width '.$params['width'].' ';
 		$command .= '--format '.$params['format'].' ';
+		$command .= '--load-error-handling ignore ';
 		$command .= '"'.$params['url'].'" '; // url
 		//$command .= '--custom-header "If-Modified-Since" "'.$modified.'" ';
 		$command .= getcwd().'/web/uploads/'.$this->getHash().'.'.$params['format'].'; '; // image path

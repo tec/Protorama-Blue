@@ -47,8 +47,14 @@ EOF;
 				$job = RenderJobTable::getInstance()->getNextJob();
 
 				if($job) {
-					$this->logSection("render", "Process job ".$job->getHash().": ".$job->getParams());
-					$job->render()->save();
+					$this->logSection("render", "Process job ".$job->getHash().": ".$job->getParams());					
+					//var_dump($job->getCommand());
+					
+					$job->render()->save();					
+					
+					if ($job->getStatus() == 'failed') {
+						$this->logSection("render", $job->getErrorMessage());	
+					}
 				} else {
 					$this->logSection("render", "Wait for 1 second");
 					sleep(1);
