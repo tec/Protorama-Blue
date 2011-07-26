@@ -1,14 +1,14 @@
 <?php
 
 /**
- * RenderJob filter form base class.
+ * Job filter form base class.
  *
  * @package    Protorama Blue
  * @subpackage filter
  * @author     Tino Truppel
  * @version    SVN: $Id: sfDoctrineFormFilterGeneratedTemplate.php 29570 2010-05-21 14:49:47Z Kris.Wallsmith $
  */
-abstract class BaseRenderJobFormFilter extends BaseFormFilterDoctrine
+abstract class BaseJobFormFilter extends BaseFormFilterDoctrine
 {
   public function setup()
   {
@@ -38,7 +38,7 @@ abstract class BaseRenderJobFormFilter extends BaseFormFilterDoctrine
       'updated_at'          => new sfValidatorDateRange(array('required' => false, 'from_date' => new sfValidatorDateTime(array('required' => false, 'datetime_output' => 'Y-m-d 00:00:00')), 'to_date' => new sfValidatorDateTime(array('required' => false, 'datetime_output' => 'Y-m-d 23:59:59')))),
     ));
 
-    $this->widgetSchema->setNameFormat('render_job_filters[%s]');
+    $this->widgetSchema->setNameFormat('job_filters[%s]');
 
     $this->errorSchema = new sfValidatorErrorSchema($this->validatorSchema);
 
@@ -49,7 +49,7 @@ abstract class BaseRenderJobFormFilter extends BaseFormFilterDoctrine
 
   public function getModelName()
   {
-    return 'RenderJob';
+    return 'Job';
   }
 
   public function getFields()

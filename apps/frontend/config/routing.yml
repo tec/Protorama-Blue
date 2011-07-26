@@ -9,7 +9,7 @@ getRenderJob:
   url:   /api/get/:hash.:format
   param: { module: api, action: get }
   class: sfDoctrineRoute
-  options: { model: RenderJob, type: object }
+  options: { model: Job, type: object }
   
 instantRender:
   url:   /*

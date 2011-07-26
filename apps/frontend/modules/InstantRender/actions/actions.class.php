@@ -31,27 +31,26 @@ class InstantRenderActions extends sfActions
   	$params['url'] = $url;
 
   	// create job
-  	$this->job = RenderJobTable::getInstance()->createNewJob($params);
+  	$job = JobTable::getInstance()->createNewJob($params);
   	
-	// waits max 60 seconds until job is rendered
-	$wait = $this->job->getProcessFinishedAt() != NULL ? 0 : 60; 
-	while ($wait > 0) {
-		$this->job = RenderJobTable::getInstance()->find($this->job->getId());  
-		if($this->job->getProcessFinishedAt() > $this->job->getProcessStartedAt() && file_exists(getcwd().'/'.$this->job->getPath())) {
-			$wait = 0;
-		} else {
-			$wait--;
-			session_write_close();
-			sleep(1);
-			clearstatcache();
-		}
+	// waits max ca. 60 seconds until job is rendered
+	$wait = 60; 
+	while ($wait > 0 && $job->getStatus() != 'processed' && $job->getStatus() != 'failed') {
+		$wait--;
+		session_write_close();
+		sleep(1);
+		clearstatcache();
+		$job = JobTable::getInstance()->find($job->getId());
 	}
-
-	if($this->job->getParam('format') == 'pdf' && stripos($this->job->getPath(), 'pdf') !== FALSE) {
-		$this->getResponse()->setContentType('application/pdf');
-		header('Content-Disposition: attachment; filename="'.$this->job->getParam('url').'.pdf"');		
+	$this->getResponse()->setContentType('image/png');
+	if ($job->getStatus() == 'processed') {
+		$this->file = $job->getLastResult()->getAbsolutePath();
+	} else if ($job->getStatus() == 'failed') {
+		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Asset'));
+		$this->file = getcwd().'/images/could-not-render.png';
 	} else {
-		$this->getResponse()->setContentType('image/png');
+		sfContext::getInstance()->getConfiguration()->loadHelpers(array('Asset'));
+		$this->file = getcwd().'/images/not-yet-rendered.png';
 	}
   }
 }

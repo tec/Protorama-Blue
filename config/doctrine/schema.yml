@@ -1,32 +1,45 @@
-RenderJob:
+Job:
   actAs: { Timestampable: ~ }
   columns:        
     params: { type: text }
     hash: { type: string(255), notnull: true, unique: true, notblank: true }
-    path: { type: string(255), notnull: true, notblank: true }
     status: { type: enum, values: ['new', 'queued', 'processing', 'processed', 'failed', 'waiting'], notnull: true, notblank: true }
     error_message: { type: text }
     accessed_at: { type: timestamp, notnull: true }
     process_started_at: { type: timestamp, notnull: false }
     process_finished_at: { type: timestamp, notnull: false }
     
-ImageRenderJob:
+ImageJob:
   inheritance:
-    extends: RenderJob
+    extends: Job
     type: column_aggregation
     keyField: type
     keyValue: image
     
-PdfRenderJob:
+PdfJob:
   inheritance:
-    extends: RenderJob
+    extends: Job
     type: column_aggregation
     keyField: type
     keyValue: pdf
     
-WordRenderJob:
+WordJob:
   inheritance:
-    extends: RenderJob
+    extends: Job
     type: column_aggregation
     keyField: type
     keyValue: word
+    
+Result:
+  actAs: { Timestampable: ~ }
+  columns:    
+    path: { type: string(255), notnull: true, notblank: true }
+    job_id: { type: bigint(20) }
+  relations:
+    Job:
+      foreign: id
+      local: job_id
+      type: one
+      onDelete: cascade
+      foreignType: many
+      foreignAlias: Results

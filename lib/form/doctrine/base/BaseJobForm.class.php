@@ -1,16 +1,16 @@
 <?php
 
 /**
- * RenderJob form base class.
+ * Job form base class.
  *
- * @method RenderJob getObject() Returns the current form's model object
+ * @method Job getObject() Returns the current form's model object
  *
  * @package    Protorama Blue
  * @subpackage form
  * @author     Tino Truppel
  * @version    SVN: $Id: sfDoctrineFormGeneratedTemplate.php 29553 2010-05-20 14:33:00Z Kris.Wallsmith $
  */
-abstract class BaseRenderJobForm extends BaseFormDoctrine
+abstract class BaseJobForm extends BaseFormDoctrine
 {
   public function setup()
   {
@@ -43,10 +43,10 @@ abstract class BaseRenderJobForm extends BaseFormDoctrine
     ));
 
     $this->validatorSchema->setPostValidator(
-      new sfValidatorDoctrineUnique(array('model' => 'RenderJob', 'column' => array('hash')))
+      new sfValidatorDoctrineUnique(array('model' => 'Job', 'column' => array('hash')))
     );
 
-    $this->widgetSchema->setNameFormat('render_job[%s]');
+    $this->widgetSchema->setNameFormat('job[%s]');
 
     $this->errorSchema = new sfValidatorErrorSchema($this->validatorSchema);
 
@@ -57,7 +57,7 @@ abstract class BaseRenderJobForm extends BaseFormDoctrine
 
   public function getModelName()
   {
-    return 'RenderJob';
+    return 'Job';
   }
 
 }

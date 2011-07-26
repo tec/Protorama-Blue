@@ -4,17 +4,15 @@ class renderTask extends sfBaseTask
 {
 	protected function configure()
 	{
-		// add your own arguments here
 		$this->addArguments(array(
-		new sfCommandArgument('chunksize', sfCommandArgument::REQUIRED, 'Chunksize'),
+			new sfCommandArgument('chunksize', sfCommandArgument::REQUIRED, 'Chunksize'),
 		));
 
 		$this->addOptions(array(
-		new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name'),
-		new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
-		new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
-		new sfCommandOption('lock', null, sfCommandOption::PARAMETER_REQUIRED, 'Unique lock string', '1'),
-		// add your own options here
+			new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name'),
+			new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
+			new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
+			new sfCommandOption('lock', null, sfCommandOption::PARAMETER_REQUIRED, 'Unique lock string', '1'),
 		));
 
 		$this->namespace        = '';
@@ -44,14 +42,11 @@ EOF;
 			chdir($cwd);
 				
 			for($i = 0; $i < $arguments['chunksize']; $i++) {
-				$job = RenderJobTable::getInstance()->getNextJob();
+				$job = JobTable::getInstance()->getNextJob();
 
 				if($job) {
-					$this->logSection("render", "Process job ".$job->getHash().": ".$job->getParams());					
-					//var_dump($job->getCommand());
-					
-					$job->render()->save();					
-					
+					$this->logSection("render", "Process job ".$job->getHash().": ".$job->getParams());							
+					$job->render();										
 					if ($job->getStatus() == 'failed') {
 						$this->logSection("render", $job->getErrorMessage());	
 					}

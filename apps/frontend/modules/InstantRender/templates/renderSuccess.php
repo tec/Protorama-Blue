@@ -1,1 +1,1 @@
-<?php readfile(getcwd().'/'.$job->getPath()); ?>
+<?php readfile($file); ?>

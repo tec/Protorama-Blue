@@ -15,22 +15,22 @@ class apiActions extends sfActions
 		$params = urldecode($request->getParameter('params'));		
 		$params = json_decode($params, true);
 		if (is_null($params)) {
-			$job =	new RenderJob();
+			$job =	new Job();
 			$job->setStatus('failed')->setErrorMessage('Could not parse PARAMS');
 		} else {	
-			$job = RenderJobTable::getInstance()->createNewJob($params);			
+			$job = JobTable::getInstance()->createNewJob($params);			
 		}
-		$this->returnJob($job, $request->getParameter('format'));
+		return $this->returnJob($job, $request);
 	}
 
 	public function executeGet(sfWebRequest $request)
 	{
 		$job = $this->getRoute()->getObject();
-		$this->returnJob($job, $request->getParameter('format'));
+		return $this->returnJob($job, $request);
 	}
 
-	public function returnJob(RenderJob $job, $format){
-		$result = array(
+	public function returnJob(Job $job, sfWebRequest $request){
+		$array = array(
 	    	'hash' => $job->getHash(),
 	    	'params' => json_decode($job->getParams(), true),
 	    	'accessedAt' => $job->getAccessedAt(),
@@ -38,22 +38,29 @@ class apiActions extends sfActions
 			'processFinishedAt' => $job->getProcessFinishedAt(),
 			'type' => $job->getType(),
 			'createdAt' => $job->getCreatedAt(),
-	    	'result' => $job->getResult(),
+	    	'results' => array(),
 	    	'status' => $job->getStatus(),
 		);
-		if ($result['status'] == 'failed') {
-			$result['errorMessage'] = $job->getErrorMessage();
+		if ($array['status'] == 'failed') {
+			$array['errorMessage'] = $job->getErrorMessage();
+		}
+		foreach ($job->getResults() as $result) {
+			$array['results'][$result->getCreatedAt()] = $result->getUrl();
 		}
 
-		switch ($format) {
+		switch ($request->getParameter('format')) {
 			case 'json':
-				$this->result = $result;
+				$json = json_encode($array);
+				// provide JSONP if needed
+				if($request->hasParameter('callback')) {
+    				$json = $request->getParameter('callback').'('.$json.')';
+				}    
 				$this->getResponse()->setHttpHeader('Content-type','application/json');
-				$this->setTemplate('json', 'api');
 				sfConfig::set('sf_web_debug', false);
+				return $this->renderText($json);
 				break;
 			default:
-				$this->redirect($job->getResult());
+				$this->redirect($job->getLastResult()->getUrl());
 				break;
 		}
 	}
